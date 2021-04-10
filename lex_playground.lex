@@ -6,13 +6,12 @@
 %option noyywrap
 %option yylineno
 
-NUM     [0] | ([1-9][0-9]*)
+NUM     [0]|([1-9][0-9]*)
 ID	    [A-Za-z][A-Za-z0-9]*
 RELOP   ==|!=|<=|>=|<|>
 BINOP   \+|\-|\*|\/
 COMMENT (\/\/[^\n\r]*)
-STRING  ([\x20-\x21])
-ESCAPE-SEQUENCE \n|\r|\\|\"|\t|\0|\x[0-7][0-9A-F]
+%x STRINGS
 
 %%
 void        return VOID;
@@ -46,8 +45,10 @@ default     return DEFAULT;
 {COMMENT}   return COMMENT;
 {ID}        return ID;
 {NUM}       return NUM;
-[\x20-\x21\x23-\x2e\x30-\x7e]*    return STRING;
-{ESCAPE-SEQUENCE}   return 34;
+(\")        BEGIN(STRINGS);
+<STRINGS><<EOF>>    return -2;
+<STRINGS>([\x20-\x21\x23-\x2e\x30-\x7e]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
+<STRINGS>([^(\")])*((\")?)  return -2;
 .           return -1;
 
 %%
