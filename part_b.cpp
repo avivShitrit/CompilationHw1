@@ -12,9 +12,6 @@ using namespace std;
 #define INVALID_CHAR -1
 #define TAB "\t"
 
-int tab = 0;
-stack<int> brackets;
-
 string tokenNumberToString(int token_num){
 	string token_string;
 	switch (token_num)
@@ -130,6 +127,8 @@ void errorBadExpression(){
 
 int main()
 {
+	int tab = 0;
+	stack<int> brackets;
 	int token;
 	while((token = yylex())) {
 		if (token == INVALID_CHAR) {
@@ -155,6 +154,9 @@ int main()
 			tab++;
 			brackets.push(token);
 		}
+	}
+	if (!brackets.empty()) {
+		errorBadExpression();
 	}
 	return 0;
 }

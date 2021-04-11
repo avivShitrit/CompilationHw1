@@ -50,7 +50,7 @@ default     return DEFAULT;
 <STRINGS><<EOF>>    return -2;
 <STRINGS>([\x20-\x21\x23-\x2e\x30-\x7e]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
 <STRINGS>([^(\")])*((\")?)  return -2;
-(" ")      {}
+[ \t\n]    ;
 .           return -1;
 
 %%
