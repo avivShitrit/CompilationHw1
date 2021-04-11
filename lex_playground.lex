@@ -24,6 +24,7 @@ or          return OR;
 not         return NOT;
 true        return TRUE;
 false       return FALSE;
+return      return RETURN;
 if          return IF;
 else        return ELSE;
 while       return WHILE;
