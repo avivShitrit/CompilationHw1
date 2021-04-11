@@ -138,7 +138,7 @@ int main()
 		else if (token < LPAREN || token > RBRACE) {
 			errorInvalidToken(token);
 		}
-		
+
 		if (token == RPAREN || token == RBRACE)
 		{
 			if (token != brackets.top() + 1) {
