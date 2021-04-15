@@ -140,6 +140,9 @@ int main()
 
 		if (token == RPAREN || token == RBRACE)
 		{
+			if (brackets.empty()) {
+				errorBadExpression();
+			}
 			if (token != brackets.top() + 1) {
 				errorBadExpression();
 			}
