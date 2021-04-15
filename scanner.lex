@@ -49,9 +49,9 @@ default     return DEFAULT;
 {NUM}       return NUM;
 {WHITESPACE} ;
 (\")        BEGIN(STRINGS);
-<STRINGS><<EOF>>    return -2;
+<STRINGS><<EOF>>    return WRONGSTRING;
 <STRINGS>([\x20-\x21\x23-\x2e\x30-\x7e]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
-<STRINGS>([^(\")])*((\")?)  return -2;
-.           return -1;
+<STRINGS>([^(\")])*((\")?)  return WRONGSTRING;
+.           return WRONGCHAR;
 
 %%

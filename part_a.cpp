@@ -76,7 +76,7 @@ int asciiEscapeSequence(int startIndex){
         } else {
             std::cout << yytext[startIndex + 2] << yytext[startIndex + 3] << std::endl;
         }
-        exit(0);
+        return -1;
     }
     return ascii_char;
 }
@@ -102,7 +102,6 @@ char escapeSequence(char c){
     }
 }
 
-//Debug
 unsigned int stringLen(const char* str){
     int i=0;
     for (;str[i]!=0;i++);
@@ -111,14 +110,10 @@ unsigned int stringLen(const char* str){
 
 void printStringError() {
     unsigned int strlen = stringLen(yytext);
-    //Debug:
-    if(strlen != yyleng){
-        printf("strlen (%d) != yyleng (%d)", strlen, yyleng);
-        return;
-    }
-    cout<<"no problem with yyleng"<<endl;
+    bool isEscape = false;
+    int escapeIndex = -1;
     if(strlen == 0){
-        cout<<"Error unclosed string\n";
+        cout<<"Error unclosed string"<<endl;
         return;
     }
     for (size_t i = 0; i < strlen; i++) {
@@ -126,17 +121,19 @@ void printStringError() {
             cout<< "Error unclosed string"<< endl;
             return;
         }
-        if (yytext[i] == '\\') {
-            if (yytext[i + 1] == 'x') {
-                asciiEscapeSequence(i);
-            }
-            cout<< "Error undefined escape sequence "<< yytext[i + 1]<< endl;
-            return;
+        if (yytext[i] == '\\' && !isEscape) {
+            isEscape = true;
+            escapeIndex = i;
         }
-        if (yytext[i] == '\"') {
-            cout<< "Error "<< yytext[i]<< endl;
-            return;
+    }
+    if(isEscape){
+        if (yytext[escapeIndex + 1] == 'x') {
+            asciiEscapeSequence(escapeIndex);
         }
+        else{
+            cout<< "Error undefined escape sequence "<< yytext[escapeIndex + 1]<< endl;
+        }
+        return;
     }
     cout<< "Error unclosed string"<< endl;
 }
@@ -151,6 +148,15 @@ int main()
     int token;
     vector<string>* tokenToStr = initTokenToStr();
     while((token = yylex())) {
+        unsigned int strlen = stringLen(yytext);
+//        //Debug:
+//        cout<< "token ="<<token<<", "<<(*tokenToStr)[token]<<endl;
+//        cout<< "yytext ="<<yytext<<endl;
+//        cout<<"strlen ="<<strlen<<endl;
+//        if(token == STRING && strlen >=2){
+//            cout<<"yytext[strlen-2] ="<<yytext[strlen-2]<<endl;
+//            cout<<(yytext[strlen-2] == '\\')<<endl;
+//        }
         //for STRING token only (can't declare inside switch)
         string outputString;
         switch(token) {
@@ -164,7 +170,11 @@ int main()
                 cout<< yylineno<<" "<< (*tokenToStr)[token]<<" "<< "//"<< endl;
                 break;
             case STRING:
-                for (int i = 0; i < yyleng - 1; i++) {
+                if(yytext[strlen-2] == '\\'){
+                    cout<<"Error unclosed string"<<endl;
+                    endProgram(0, tokenToStr);
+                }
+                for (int i = 0; i < strlen-1; i++) {
                     if (yytext[i] != '\\') {
                         outputString.push_back(yytext[i]);
                     } else {
@@ -176,10 +186,13 @@ int main()
                         if (asciiChar == 'x') {
                             asciiChar = asciiEscapeSequence(i);
                             i += 2;
+                            if(asciiChar == -1){
+                                endProgram(0, tokenToStr);
+                            }
                         }
                         if (asciiChar == 0) {
                             outputString.push_back(asciiChar);
-                            i = yyleng-1; //breaking loop (can't use "break" inside switch)
+                            i = strlen; //breaking loop (can't use "break" inside switch)
                             continue;
                         }
                         outputString.push_back(asciiChar);
