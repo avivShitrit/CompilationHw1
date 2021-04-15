@@ -11,6 +11,7 @@ ID	    [A-Za-z][A-Za-z0-9]*
 RELOP   ==|!=|<=|>=|<|>
 BINOP   \+|\-|\*|\/
 COMMENT (\/\/[^\n\r]*)
+WHITESPACE ([\t\n\r ])
 %x STRINGS
 
 %%
@@ -46,11 +47,11 @@ default     return DEFAULT;
 {COMMENT}   return COMMENT;
 {ID}        return ID;
 {NUM}       return NUM;
+{WHITESPACE} ;
 (\")        BEGIN(STRINGS);
 <STRINGS><<EOF>>    return -2;
 <STRINGS>([\x20-\x21\x23-\x2e\x30-\x7e]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
 <STRINGS>([^(\")])*((\")?)  return -2;
-[ \t\n]    ;
 .           return -1;
 
 %%

@@ -5,7 +5,8 @@
 
 using std::string;
 using std::vector;
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 vector<string>* initTokenToStr(){
 	auto tokenToStr = new vector<string> {
 		"",
@@ -25,6 +26,10 @@ vector<string>* initTokenToStr(){
 		"WHILE",
 		"BREAK",
 		"CONTINUE",
+		"SWITCH",
+		"CASE",
+		"DEFAULT",
+		"COLON",
 		"SC",
 		"COMMA",
 		"LPAREN",
@@ -104,61 +109,59 @@ unsigned int stringLen(const char* str){
     return i;
 }
 
-void findStringError() {
+void printStringError() {
     unsigned int strlen = stringLen(yytext);
     //Debug:
     if(strlen != yyleng){
         printf("strlen (%d) != yyleng (%d)", strlen, yyleng);
-        exit(0);
+        return;
     }
     cout<<"no problem with yyleng"<<endl;
     if(strlen == 0){
         cout<<"Error unclosed string\n";
-        exit(0);
+        return;
     }
     for (size_t i = 0; i < strlen; i++) {
         if (yytext[i] == '\n' || yytext[i] == '\r' || (yytext[i] == '\\' && i == strlen - 2)) {
             cout<< "Error unclosed string"<< endl;
-            exit(0);
+            return;
         }
         if (yytext[i] == '\\') {
             if (yytext[i + 1] == 'x') {
                 asciiEscapeSequence(i);
             }
             cout<< "Error undefined escape sequence "<< yytext[i + 1]<< endl;
-            exit(0);
+            return;
         }
         if (yytext[i] == '\"') {
             cout<< "Error "<< yytext[i]<< endl;
-            exit(0);
+            return;
         }
     }
     cout<< "Error unclosed string"<< endl;
-    exit(0);
 }
 
-
+void endProgram(int status, vector<string>* pointerToDelete= nullptr){
+    delete pointerToDelete;
+    exit(status);
+}
 
 int main()
 {
     int token;
     vector<string>* tokenToStr = initTokenToStr();
-    string tokenStr = (*tokenToStr)[token];
     while((token = yylex())) {
         //for STRING token only (can't declare inside switch)
         string outputString;
         switch(token) {
-            //unsupported char
-            case -1:
-                cout << "Error " << yytext << endl;
-                exit(0);
-                break;
-            //wrong string
-            case -2:
-                findStringError();
-                break;
+            case WRONGCHAR:
+                cout<<"Error "<< yytext<< endl;
+                endProgram(0, tokenToStr);
+            case WRONGSTRING:
+                printStringError();
+                endProgram(0, tokenToStr);
             case COMMENT:
-                cout<< yylineno<< tokenStr<< "//";
+                cout<< yylineno<<" "<< (*tokenToStr)[token]<<" "<< "//"<< endl;
                 break;
             case STRING:
                 for (int i = 0; i < yyleng - 1; i++) {
@@ -167,8 +170,8 @@ int main()
                     } else {
                         int asciiChar = escapeSequence(yytext[i + 1]);
                         if (asciiChar == -1) {
-                            printf("Error undefined escape sequence %c\n", yytext[i + 1]);
-                            exit(0);
+                            cout<<"Error undefined escape sequence "<< yytext[i + 1]<< endl;
+                            endProgram(0, tokenToStr);
                         }
                         if (asciiChar == 'x') {
                             asciiChar = asciiEscapeSequence(i);
@@ -183,10 +186,10 @@ int main()
                         i++;
                     }
                 }
-                cout<< yylineno<< tokenStr<< outputString;
+                cout<< yylineno<<" "<< (*tokenToStr)[token]<<" "<< outputString<< endl;
                 break;
             default:
-                cout<< yylineno<< tokenStr<< yytext;
+                cout<< yylineno<<" "<< (*tokenToStr)[token]<<" "<< yytext<< endl;
                 break;
         }
     }
