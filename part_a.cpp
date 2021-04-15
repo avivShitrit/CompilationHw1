@@ -150,7 +150,9 @@ int main()
     while((token = yylex())) {
         unsigned int strlen = stringLen(yytext);
 //        //Debug:
-//        cout<< "token ="<<token<<", "<<(*tokenToStr)[token]<<endl;
+//        cout<< "token ="<<token<<endl;
+//        if(token>0)
+//            cout<<"token str ="<<(*tokenToStr)[token]<<endl;
 //        cout<< "yytext ="<<yytext<<endl;
 //        cout<<"strlen ="<<strlen<<endl;
 //        if(token == STRING && strlen >=2){
@@ -170,7 +172,7 @@ int main()
                 cout<< yylineno<<" "<< (*tokenToStr)[token]<<" "<< "//"<< endl;
                 break;
             case STRING:
-                if(yytext[strlen-2] == '\\'){
+                if(strlen >=2 && yytext[strlen-2] == '\\'){
                     cout<<"Error unclosed string"<<endl;
                     endProgram(0, tokenToStr);
                 }
