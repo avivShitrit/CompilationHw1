@@ -8,43 +8,43 @@ using std::vector;
 using std::cout;
 using std::endl;
 vector<string>* initTokenToStr(){
-	auto tokenToStr = new vector<string> {
-		"",
-		"VOID",
-		"INT",
-		"BYTE",
-		"B",
-		"BOOL",
-		"AND",
-		"OR",
-		"NOT",
-		"TRUE",
-		"FALSE",
-		"RETURN",
-		"IF",
-		"ELSE",
-		"WHILE",
-		"BREAK",
-		"CONTINUE",
-		"SWITCH",
-		"CASE",
-		"DEFAULT",
-		"COLON",
-		"SC",
-		"COMMA",
-		"LPAREN",
-		"RPAREN",
-		"LBRACE",
-		"RBRACE",
-		"ASSIGN",
-		"RELOP",
-		"BINOP",
-		"COMMENT",
-		"ID",
-		"NUM",
-		"STRING",
-	};
-	return tokenToStr;
+    auto tokenToStr = new vector<string> {
+        "",
+        "VOID",
+        "INT",
+        "BYTE",
+        "B",
+        "BOOL",
+        "AND",
+        "OR",
+        "NOT",
+        "TRUE",
+        "FALSE",
+        "RETURN",
+        "IF",
+        "ELSE",
+        "WHILE",
+        "BREAK",
+        "CONTINUE",
+        "SWITCH",
+        "CASE",
+        "DEFAULT",
+        "COLON",
+        "SC",
+        "COMMA",
+        "LPAREN",
+        "RPAREN",
+        "LBRACE",
+        "RBRACE",
+        "ASSIGN",
+        "RELOP",
+        "BINOP",
+        "COMMENT",
+        "ID",
+        "NUM",
+        "STRING",
+    };
+    return tokenToStr;
 }
 
 char fromHexToDecAscii(char i,char j) {
@@ -121,21 +121,20 @@ void printStringError() {
             cout<< "Error unclosed string"<< endl;
             return;
         }
-        if (yytext[i] == '\\' && !isEscape) {
-            isEscape = true;
-            escapeIndex = i;
+    }
+    for(size_t i = 0; i < strlen; i++){
+        if (yytext[i] == '\\') {
+            if(yytext[i+1] == 'x'){
+                asciiEscapeSequence(i);
+                return;
+            }
+            else if(escapeSequence(yytext[i + 1]) < 0){
+                cout<< "Error undefined escape sequence "<< yytext[i + 1]<< endl;
+                return;
+            }
         }
     }
-    if(isEscape){
-        if (yytext[escapeIndex + 1] == 'x') {
-            asciiEscapeSequence(escapeIndex);
-        }
-        else{
-            cout<< "Error undefined escape sequence "<< yytext[escapeIndex + 1]<< endl;
-        }
-        return;
-    }
-    cout<< "Error unclosed string"<< endl;
+    cout << "Error unclosed string"<< endl;
 }
 
 void endProgram(int status, vector<string>* pointerToDelete= nullptr){
@@ -208,5 +207,5 @@ int main()
                 break;
         }
     }
-	return 0;
+    return 0;
 }
