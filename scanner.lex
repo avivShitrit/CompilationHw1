@@ -50,7 +50,7 @@ default     return DEFAULT;
 {WHITESPACE} ;
 (\")        BEGIN(STRINGS);
 <STRINGS><<EOF>>    return WRONGSTRING;
-<STRINGS>([\x20-\x21\x23-\x2e\x30-\x7e]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
+<STRINGS>([\x00-\x09\x0b-\x0c\x0e-\x21\x23-\x5b\x5d-\x7f]|((\\)(\\))|((\\)(\"))|((\\)(n))|((\\)(r))|((\\)(t))|((\\)(0))|((\\)x))*(\") {BEGIN(INITIAL);return STRING;}
 <STRINGS>([^(\")])*((\")?)  return WRONGSTRING;
 .           return WRONGCHAR;
 
